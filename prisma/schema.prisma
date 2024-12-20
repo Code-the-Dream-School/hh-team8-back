@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model users {
+  user_id Int @id @default(autoincrement())
+  username String @unique
+  email String @unique
+  password_hash String
+  role_id Int
+  user_role user_role[] @relation("users")
+  comments comments[] @relation("user-comments")
+  likes likes[] @relation("user-likes")
+  projects projects[] @relation("users-projects")
+}
+
+model roles{
+  role_id Int @id @default(autoincrement())
+  role_name String @unique
+  roles user_role[] @relation("roles")
+
+}
+
+model user_role{
+  id Int @id @default(autoincrement())
+  user_role users @relation("users", fields: [user_id], references: [user_id])
+  user_id Int
+  roles roles @relation("roles", fields: [role_id], references: [role_id])
+  role_id Int
+}
+
+model projects {
+  project_id Int @id @default(autoincrement())
+  name String 
+  description String
+  tags String
+  github_link String
+  youtube_link String?
+  is_public Boolean
+  owner users @relation("users-projects", fields: [created_by], references: [user_id])
+  created_by Int
+  create_at DateTime @default(now())
+  comment comments[] @relation("projects-comments")
+  likes likes[] @relation("projects-likes")
+}
+
+model comments {
+  comment_id Int @id @default(autoincrement())
+  content String
+  created_at DateTime @default(now())
+  update_at DateTime @updatedAt
+  user users @relation("user-comments", fields: [user_id], references: [user_id])
+  user_id Int
+  project projects @relation("projects-comments", fields: [project_id], references: [project_id])
+  project_id Int
+
+}
+
+
+model likes {
+  like_id Int @id @default(autoincrement())
+  created_at DateTime @default(now())
+  user users @relation("user-likes", fields: [user_id], references: [user_id])
+  user_id Int @unique
+  project projects @relation("projects-likes", fields: [project_id], references: [project_id])
+  project_id Int @unique
+
+}
+
+
