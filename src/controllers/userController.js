@@ -5,21 +5,21 @@ const userController = {
         try {
             const users = await userModel.getAllUsers();
             res.status(200).json({ success: true, data: users });
-            console.log('Fetching all users...');
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
     },
-    getUserById: async (req, res) => {
+
+    getUserInfoById: async (req, res) => {
         try {
-            const userId = parseInt(req.params.id, 10); // Ensure the ID is a number
-            const user = await userModel.getUserById(userId);
+            const userId = parseInt(req.params.id, 10); 
+            const user = await userModel.getUserInfoById(userId);
             res.status(200).json({ success: true, data: user });
-            console.log(`Fetching user with ID: ${userId}`);
         } catch (error) {
             res.status(404).json({ success: false, message: error.message });
         }
     },
+
     addUser: async (req, res) => {
         try {
             const { username, email, password_hash } = req.body;
@@ -29,11 +29,122 @@ const userController = {
                     message: "Username, email, and password_hash are required.",
                 });
             }
-            const newUser = await userModel.addUser({ username, email, password_hash });
-            res.status(201).json({ success: true, data: newUser });
-            console.log('New user added:', newUser);
+            await userModel.addUser({ username, email, password_hash });
+            res.status(201).json({ success: true,  message: "New user was added successfully.",});
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
+        }
+    },
+
+    getUserByCredentials: async (req, res) => {
+        try {
+            const { username, password } = req.body;
+
+            if (!username || !password) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Username and password are required.",
+                });
+            }
+
+            const user = await userModel.getUserByUsername(username);
+            if (!user) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Invalid username or password.",
+                });
+            }
+
+            if (user.password_hash !== password) {
+                return res.status(401).json({
+                    success: false,
+                    message: "Invalid username or password.",
+                });
+            }
+
+            res.status(200).json({
+                success: true,
+                message: "User authenticated successfully.",
+                data: {
+                    user_id: user.user_id,
+                    username: user.username,
+                    email: user.email,
+                },
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: `Authentication failed: ${error.message}`,
+            });
+        }
+    },
+
+    updateUserRole: async (req, res) => {
+        try {
+            const { user_id } = req.body;
+    
+            if (!user_id) {
+                return res.status(400).json({
+                    success: false,
+                    message: "user_id is a required parameter.",
+                });
+            }
+    
+            const parsedUserId = parseInt(user_id, 10); 
+
+            if (isNaN(parsedUserId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "user_id must be a valid integer.",
+                });
+            }
+
+            const updatedRole = await userModel.updateUserRole(parsedUserId, 3);
+    
+            res.status(200).json({
+                success: true,
+                message: "User role updated successfully.",
+                data: updatedRole,
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: error.message,
+            });
+        }
+    },
+
+    deleteUser: async (req, res) => {
+        try {
+            const { user_id } = req.params;
+    
+            if (!user_id) {
+                return res.status(400).json({
+                    success: false,
+                    message: "user_id is required.",
+                });
+            }
+    
+            const userId = parseInt(user_id, 10);
+    
+            if (isNaN(userId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid user_id. It must be an integer.",
+                });
+            }
+    
+            await userModel.deleteUser(userId);
+    
+            res.status(200).json({
+                success: true,
+                message: "User deleted successfully.",
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: error.message,
+            });
         }
     },
 };
