@@ -150,6 +150,61 @@ const projectModel = {
         throw new Error(`Failed to delete project: ${error.message}`);
     }
   },
+
+  addLike: async (userId, projectId) => {
+    try {
+        const newLike = await prisma.likes.create({
+            data: {
+                user_id: userId,
+                project_id: projectId,
+            },
+        });
+        return newLike;
+    } catch (error) {
+        console.error("Error while adding like:", error);
+        if (error.code === "P2002") {
+            throw new Error("User has already liked this project.");
+        }
+        throw new Error(`Failed to add like: ${error.message}`);
+    }
+  },
+
+
+  removeLike: async (userId, projectId) => {
+    try {
+        const deletedLike = await prisma.likes.deleteMany({
+            where: {
+                user_id: userId,
+                project_id: projectId,
+            },
+        });
+        return deletedLike.count > 0;
+    } catch (error) {
+        console.error("Error while removing like:", error);
+        throw new Error(`Failed to remove like: ${error.message}`);
+    }
+  },
+
+  getLikesByProjectId: async (projectId) => {
+    try {
+        const likes = await prisma.likes.findMany({
+            where: { project_id: projectId },
+            include: {
+                users: {
+                    select: {
+                        user_id: true,
+                        username: true, 
+                    },
+                },
+            },
+        });
+        return likes;
+    } catch (error) {
+        console.error("Error while fetching likes:", error);
+        throw new Error(`Failed to retrieve likes: ${error.message}`);
+    }
+  },
+
 };
 
 module.exports = projectModel;

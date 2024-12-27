@@ -10,5 +10,8 @@ router.get('/userprojects/:user_id', projectController.getProjectsByUser); // En
 router.post('/addcomment/:project_id', projectController.addComment); // Endpoint to add a comment to a project
 router.get('/comments/:project_id', projectController.getCommentsByProjectId); // Endpoint to get all comments for a specific project
 router.delete("/deleteproject/:user_id/:project_id", projectController.deleteProject); // Endpoint to delete a project
+router.post('/addlike/:user_id/:project_id', projectController.addLike); // Endpoint to add a like to a project
+router.delete('/removelike/:user_id/:project_id', projectController.removeLike); // Endpoint to delete a like from the project
+router.get('/likes/:project_id', projectController.getLikesByProjectId); //Endpoint for get all likes for a specific project 
 
 module.exports = router;

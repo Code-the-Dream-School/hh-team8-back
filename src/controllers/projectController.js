@@ -252,6 +252,86 @@ const projectController = {
       console.error(`Failed to delete project: ${error.message}`);
     }
   },
+
+
+  addLike: async (req, res) => {
+    try {
+        const { user_id, project_id } = req.params;
+        if (!user_id || !project_id) {
+            return res.status(400).json({
+                success: false,
+                message: "Both user_id and project_id are required.",
+            });
+        }
+        const newLike = await projectModel.addLike(parseInt(user_id, 10), parseInt(project_id, 10));
+        res.status(200).json({
+            success: true,
+            message: "Like added successfully.",
+            data: newLike,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: `Failed to add like: ${error.message}`,
+        });
+        console.error(`Failed to add like: ${error.message}`);
+    }
+  },
+
+  removeLike: async (req, res) => {
+    try {
+        const { user_id, project_id } = req.params; 
+        if (!user_id || !project_id) {
+            return res.status(400).json({
+                success: false,
+                message: "Both user_id and project_id are required.",
+            });
+        }
+        const result = await projectModel.removeLike(parseInt(user_id, 10), parseInt(project_id, 10));
+        if (result) {
+            res.status(200).json({
+                success: true,
+                message: "Like removed successfully.",
+            });
+        } else {
+            res.status(404).json({
+                success: false,
+                message: "Like not found.",
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: `Failed to remove like: ${error.message}`,
+        });
+        console.error(`Failed to remove like: ${error.message}`);
+    }
+  },
+
+  getLikesByProjectId: async (req, res) => {
+    try {
+        const { project_id } = req.params;
+        if (!project_id) {
+            return res.status(400).json({
+                success: false,
+                message: "Project ID is required.",
+            });
+        }
+        const likes = await projectModel.getLikesByProjectId(parseInt(project_id, 10));
+        res.status(200).json({
+            success: true,
+            data: likes,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: `Failed to retrieve likes: ${error.message}`,
+        });
+
+        console.error(`Failed to retrieve likes for project ID ${project_id}: ${error.message}`);
+    }
+  },
+  
 };
 
 
