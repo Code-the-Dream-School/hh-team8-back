@@ -1,8 +1,22 @@
 const express = require('express');
-const router = express.Router();
-const {register} = require('../controllers/authController.js');
-const { route } = require('./authRouter.js');
+const { loginUser } = require('../services/authService');
 
-router.route('/register').post(register)
+const router = express.Router();
+
+router.post('/login', async (req, res, next) => {
+  const { username, password_hash } = req.body;
+
+  try {
+    if (!username || !password_hash) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    const { userLogin, token } = await loginUser(username, password_hash);
+
+    res.status(200).json({ userLogin, token });
+  } catch (error) {
+    next(error); // Pass error to error handler
+  }
+});
 
 module.exports = router;
