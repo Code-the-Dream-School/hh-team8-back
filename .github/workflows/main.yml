@@ -1,0 +1,44 @@
+name: Node.js CI
+
+on:
+  push:
+    branches:
+      - main  # Branche to trigger the workflow
+  pull_request:
+    branches:
+      - main  # Branche to trigger the workflow
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22.2.0'  
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Check that npm run dev works (i.e., the app runs correctly)
+      - name: Start the application
+        run: npm run dev &
+        continue-on-error: false  # true Allow the workflow to continue even if npm start fails
+
+      # Wait for the app to be ready (adjust as needed)
+      - name: Wait for app to start
+        run: sleep 10  # Optional: Adjust sleep duration based on your app's startup time
+
+      # Check if the process is running (this checks if npm run dev worked)
+      - name: Verify the app is running
+        run: |
+          if ! pgrep -f "npm run dev" > /dev/null; then
+            echo "npm run dev did not run correctly" && exit 1
+          fi
