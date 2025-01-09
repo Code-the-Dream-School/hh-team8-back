@@ -17,3 +17,7 @@ node_modules/
 
 # other
 .DS_Store
+
+# Ignore package files
+package.json
+package-lock.json
