@@ -1,5 +1,6 @@
 const express = require('express');
 const { loginUser } = require('../services/authService');
+const { forgotPassword, resetPassword } = require('../controllers/authController');
 
 const router = express.Router();
 
@@ -37,5 +38,8 @@ router.post('/logout', async (req, res) => {
       res.status(500).json({ message: 'Logout failed', error: error.message });
     }
   });
+
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password/:token', resetPassword);
 
 module.exports = router;

@@ -65,6 +65,8 @@ model users {
   username      String?     @unique @db.VarChar(50)
   email         String?     @unique @db.VarChar(100)
   password_hash String?     @db.VarChar(255)
+  resetPasswordToken  String?  // Nullable field
+  resetPasswordExpires DateTime? // Nullable field
   comments      comments[]
   likes         likes[]
   projects      projects[]
