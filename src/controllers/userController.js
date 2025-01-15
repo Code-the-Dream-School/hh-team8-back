@@ -1,13 +1,36 @@
+const { createUser } = require('../services/userService');
 const userModel = require('../models/userModel');
+const {getLoggedInUserId, checkUserRoleAdmin}  = require('../services/userService');
+const { exist } = require('joi');
 
 const userController = {
-    getAllUsers: async (req, res) => {
+
+    createUserController: async (req, res) => {
         try {
-            const users = await userModel.getAllUsers();
-            res.status(200).json({ success: true, data: users });
+          const user = await createUser(req.body);
+          res.status(201).json(user);
         } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
+          console.log(error)
+          res.status(400).json({ error: error.message });
         }
+      }, 
+
+    getAllUsers: async (req, res) => {
+
+        const checkIfAdmin = await checkUserRoleAdmin(req); // checking for user role if admin will return true. 
+   
+        if(checkIfAdmin) { // if the user is with admin will return see the user list
+            try {
+                const users = await userModel.getAllUsers();
+              return  res.status(200).json({ success: true, data: users });
+            } catch (error) {
+              return  res.status(500).json({ success: false, message: error.message });
+            }
+        }else {
+
+            return res.status(500).json({ success: false, message: "Only admin can view the user list" });
+        }
+        
     },
 
     getUserInfoById: async (req, res) => {
@@ -21,6 +44,7 @@ const userController = {
     },
 
     addUser: async (req, res) => {
+
         try {
             const { username, email, password_hash } = req.body;
             if (!username || !email || !password_hash) {
@@ -107,7 +131,7 @@ const userController = {
                 data: updatedRole,
             });
         } catch (error) {
-            res.status(500).json({
+          return  res.status(500).json({
                 success: false,
                 message: error.message,
             });
@@ -115,6 +139,12 @@ const userController = {
     },
 
     deleteUser: async (req, res) => {
+
+        const checkIfAdmin = await checkUserRoleAdmin(req); // checking for user role if admin will return true. 
+        const checkLoggedInUser = await getLoggedInUserId(req);
+
+        // console.log(checkIfAdmin, checkLoggedInUser)
+
         try {
             const { user_id } = req.params;
     
@@ -133,15 +163,21 @@ const userController = {
                     message: "Invalid user_id. It must be an integer.",
                 });
             }
-    
-            await userModel.deleteUser(userId);
-    
-            res.status(200).json({
-                success: true,
-                message: "User deleted successfully.",
-            });
+
+
+            if(checkIfAdmin || checkLoggedInUser == userId) {
+                await userModel.deleteUser(userId);
+                return res.status(200).json({
+                    success: true,
+                    message: "User deleted successfully.",
+                });
+
+            } else  {
+                return res.status(403).json({ success: false, message: "Please contact admin to delete the user. " });
+            }
+                
         } catch (error) {
-            res.status(500).json({
+           return res.status(500).json({
                 success: false,
                 message: error.message,
             });

@@ -1,4 +1,5 @@
 const projectModel = require("../models/projectModel");
+const {getLoggedInUserId, checkProjectOwner, checkUserRoleAdmin}  = require('../services/userService');
 
 const projectController = {
   getAllProjects: async (req, res) => {
@@ -24,8 +25,9 @@ const projectController = {
 
 
   addProject: async (req, res) => {
+   
+    const user_id = await getLoggedInUserId(req); 
     try {
-      const { user_id } = req.params;
       const {
         name,
         description,
@@ -75,7 +77,8 @@ const projectController = {
 
   updateProject: async (req, res) => {
     try {
-      const { user_id, project_id } = req.params; 
+      const { project_id } = req.params; 
+      const user_id = await getLoggedInUserId (req);
       const {
         name,
         description,
@@ -162,9 +165,10 @@ const projectController = {
 
 
   addComment: async (req, res) => {
+    const user_id = await getLoggedInUserId(req); 
     try {
       const { project_id } = req.params;
-      const { comment_content, user_id } = req.body;
+      const { comment_content } = req.body;
 
       if (!project_id || !comment_content || !user_id) {
         return res.status(400).json({
@@ -227,24 +231,34 @@ const projectController = {
 
 
   deleteProject: async (req, res) => {
+    const user_id = await getLoggedInUserId(req); 
+    const checkIfUserAdmin = await checkUserRoleAdmin(req); 
+    const checkIfUserProjectOwner = await checkProjectOwner(req);
     try {
-      const { user_id, project_id } = req.params; 
+      const { project_id } = req.params; 
 
       if (!user_id || !project_id) {
         return res.status(400).json({
           success: false,
-          message: "Both user_id and project_id are required.",
+          message: " project_id are required.",
         });
       }
+      if(checkIfUserAdmin || checkIfUserProjectOwner){
+        const result = await projectModel.deleteProject(
+          parseInt(user_id, 10),
+          parseInt(project_id, 10)
+        );
+      }else {
+        return res.status(405).json({
+          success: false,
+          message: "You are not project owner, please contact admin to delete the project",
+        });
+      }
+      
 
-      const result = await projectModel.deleteProject(
-        parseInt(user_id, 10),
-        parseInt(project_id, 10)
-      );
-
-      res.status(200).json(result);
+     return res.status(200).json(result);
     } catch (error) {
-      res.status(500).json({
+      return  res.status(500).json({
         success: false,
         message: error.message,
       });
@@ -255,8 +269,10 @@ const projectController = {
 
 
   addLike: async (req, res) => {
+    const user_id = await getLoggedInUserId(req); 
+    console.log(user_id)
     try {
-        const { user_id, project_id } = req.params;
+        const { project_id } = req.params;
         if (!user_id || !project_id) {
             return res.status(400).json({
                 success: false,
@@ -279,8 +295,9 @@ const projectController = {
   },
 
   removeLike: async (req, res) => {
+    const user_id = await getLoggedInUserId(req); 
     try {
-        const { user_id, project_id } = req.params; 
+        const { project_id } = req.params; 
         if (!user_id || !project_id) {
             return res.status(400).json({
                 success: false,
