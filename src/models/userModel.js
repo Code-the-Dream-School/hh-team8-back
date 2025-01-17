@@ -45,10 +45,18 @@ const userModel = {
     },
 
     addUser: async (userData) => {
+        const userCount = await prisma.users.count(); 
+        
         try {
             const newUser = await prisma.users.create({
                 data: userData,
             });
+
+            let role_id = 2;
+            if(userCount == 0) { // this line of code will check if there is no user then will creat an admin user. 
+                role_id = 4;
+            }
+            
             const userRole = await prisma.user_role.create({
                 data: {
                     user_id: newUser.user_id, 
