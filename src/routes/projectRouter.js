@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const projectController = require('../controllers/projectController');
 
+router.get('/dashboard', projectController.dashboard); // endpoint for getting total project, comments and users. 
 router.get('/projects', projectController.getAllProjects); // Endpoint to get all projects
 router.get('/projects/:id', projectController.getProjectById); // Endpoint to get a specific project by ID
 router.post('/addproject', projectController.addProject); // Endpoint to add a new project

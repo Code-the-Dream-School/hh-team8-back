@@ -2,6 +2,12 @@ const projectModel = require("../models/projectModel");
 const {getLoggedInUserId, checkProjectOwner, checkUserRoleAdmin}  = require('../services/userService');
 
 const projectController = {
+
+  dashboard: async (req, res) => {
+      const dashboardStatus = await projectModel.dashboard();
+      res.status(200).json({ success: true, data: dashboardStatus });
+  },
+
   getAllProjects: async (req, res) => {
     try {
       const projects = await projectModel.getAllProjects();

@@ -2,6 +2,31 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const projectModel = {
+
+    dashboard: async () => {
+        try {
+            // Count the total number of projects
+            const projectsCount = await prisma.projects.count();
+        
+            // Count the total number of users
+            const usersCount = await prisma.users.count();
+        
+            // Count the total number of comments
+            const commentsCount = await prisma.comments.count();
+        
+            return {
+              projects: projectsCount,
+              users: usersCount,
+              comments: commentsCount,
+            };
+          } catch (error) {
+            console.error("Error fetching counts:", error);
+            throw error;
+          } finally {
+            await prisma.$disconnect();
+          }
+    },
+
     getAllProjects: async () => {
         try {
             console.log("Fetching all projects...");
