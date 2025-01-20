@@ -30,7 +30,7 @@ exports.forgotPassword = async (req, res) => {
         });
 
         // Send reset email
-        const resetURL = `${req.protocol}://${req.get('host')}/api/v1/reset-password/${resetToken}`;
+        const resetURL = `${req.protocol}://${req.get('host')}/api/v1/change-password/${resetToken}`;
         const message = `
             <h2>Password Reset</h2>
             <p>Click the link below to reset your password:</p>
@@ -45,6 +45,11 @@ exports.forgotPassword = async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 };
+
+exports.changePassword = async(req, res) => {
+    console.log(req.params)
+    return res.status(200).json({ token: req.params.token, message: 'Password reset email sent' });
+}
 
 exports.resetPassword = async (req, res) => {
 
