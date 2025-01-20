@@ -8,7 +8,7 @@ const authenticateJWT = async (req, res, next) => {
   if (!token) {
     return res.status(401).json({ message: 'Authorization token is required' });
   }
-
+  console.log('I ahalskjdflaksjdf');
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
 
@@ -29,6 +29,7 @@ const authenticateJWT = async (req, res, next) => {
 };
 
 const authenticateToken = (req, res, next) => {
+  console.log('workaklsdjf;as')
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) {
     return res.status(401).json({ error: 'Access denied, token missing' });
