@@ -25,7 +25,7 @@ const authenticateToken = require('./middlewares/authMiddleware');
 
 app.use('/api/v1', authRouter);
 app.use('/api/v1', userRouter);
-app.use('/api/v1', authenticateToken,  mainRouter);
+app.use('/api/v1',  mainRouter);
 app.use('/api/v1', authenticateToken,  projectRouter); 
 
 
