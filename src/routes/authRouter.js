@@ -1,6 +1,6 @@
 const express = require('express');
 const { loginUser } = require('../services/authService');
-const { forgotPassword, resetPassword } = require('../controllers/authController');
+const { forgotPassword, resetPassword, changePassword } = require('../controllers/authController');
 
 const router = express.Router();
 
@@ -40,6 +40,7 @@ router.post('/logout', async (req, res) => {
   });
 
 router.post('/forgot-password', forgotPassword);
+router.get('/change-password/:token', changePassword);
 router.post('/reset-password/:token', resetPassword);
 
 module.exports = router;
