@@ -30,7 +30,15 @@ const projectModel = {
     getAllProjects: async () => {
         try {
             console.log("Fetching all projects...");
-            const projects = await prisma.projects.findMany(); 
+            const projects = await prisma.projects.findMany({
+                include: {
+                    users: {
+                        select: {
+                            username: true
+                        }
+                    }
+                }
+            }); 
             return projects;
         } catch (error) {
             console.error("Error while fetching projects:", error);
