@@ -254,6 +254,8 @@ const projectController = {
           parseInt(user_id, 10),
           parseInt(project_id, 10)
         );
+
+        return res.status(200).json(result);
       }else {
         return res.status(405).json({
           success: false,
@@ -262,7 +264,7 @@ const projectController = {
       }
       
 
-     return res.status(200).json(result);
+     
     } catch (error) {
       return  res.status(500).json({
         success: false,
